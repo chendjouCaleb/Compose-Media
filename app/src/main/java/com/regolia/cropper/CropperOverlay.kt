@@ -1,12 +1,10 @@
 package com.regolia.cropper
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -18,12 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectRatio: Float = 1f) {
+class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectRatio: Float = 0f) {
     var width by mutableStateOf(0.dp)
     var height by mutableStateOf(0.dp)
     var x by mutableStateOf(0.dp)
@@ -58,17 +61,17 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
     }
 
     fun markWidth(): Dp {
-        if(width > 64.dp) {
+        if(width > 96.dp) {
             return 32.dp
         }
-        return width / 2
+        return width / 3
     }
 
     fun markHeight(): Dp {
-        if(height > 64.dp) {
+        if(height > 96.dp) {
             return 32.dp
         }
-        return height / 2
+        return height / 3
     }
 
     fun moveStart(offsetX: Dp) {
@@ -143,30 +146,83 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
 
 @Composable
 fun FluentCropperOverlay(state: FluentCropperOverlayState) {
+    val resizeCornerBgColor = Color.Transparent
+    val resizeBgColor = Color.Transparent
     Box(
         Modifier
             .size(state.width, state.height)
             .offset(state.x, state.y)
-            .border(2.dp, Color.White)
     ) {
         val color = Color.White.copy(alpha = .8f)
+        val landMarkColor = Color.White
         Canvas(modifier = Modifier.fillMaxSize()) {
             val height = size.height
             val width = size.width
             val strokeWidth = 1.dp.toPx()
+            val markStroke = Stroke(2.dp.toPx())
+            val markPadding = 2.dp.toPx()
             drawLine(color, Offset(0f, height / 3), Offset(width, height / 3), strokeWidth)
             drawLine(color, Offset(0f, height * 2 / 3), Offset(width, height * 2 / 3), strokeWidth)
 
             drawLine(color, Offset(width / 3, 0f), Offset(width / 3, height), strokeWidth)
             drawLine(color, Offset(width * 2 / 3, 0f), Offset(width * 2 / 3, height), strokeWidth)
+            drawRect(color, Offset.Zero, Size(width, height), style = Stroke(width = strokeWidth))
 
+            drawLine(landMarkColor,
+                Offset(width / 2 - (state.markWidth()/2).toPx(), 2.dp.toPx()),
+                Offset(width / 2 + (state.markWidth()/2).toPx(), 2.dp.toPx()),
+                2.dp.toPx()
+            )
+
+            drawLine(landMarkColor,
+                Offset(width / 2 - (state.markWidth()/2).toPx(), height - 2.dp.toPx()),
+                Offset(width / 2 + (state.markWidth()/2).toPx(), height - 2.dp.toPx()),
+                2.dp.toPx()
+            )
+
+            drawLine(landMarkColor,
+                Offset(2.dp.toPx(), height / 2 - (state.markHeight()/2).toPx()),
+                Offset(2.dp.toPx(), height / 2 + (state.markHeight()/2).toPx()),
+                2.dp.toPx()
+            )
+
+            drawLine(landMarkColor,
+                Offset(width - 2.dp.toPx(), height / 2 - (state.markHeight()/2).toPx()),
+                Offset(width - 2.dp.toPx(), height / 2 + (state.markHeight()/2).toPx()),
+                2.dp.toPx()
+            )
+
+
+            val topStartMarkPath = Path()
+            topStartMarkPath.moveTo(state.markWidth().toPx(), markPadding)
+            topStartMarkPath.lineTo(markPadding, markPadding )
+            topStartMarkPath.lineTo(markPadding, state.markHeight().toPx())
+            drawPath(topStartMarkPath, landMarkColor, style=markStroke)
+
+            val topEndMarkPath = Path()
+            topEndMarkPath.moveTo(width - state.markWidth().toPx(), markPadding)
+            topEndMarkPath.lineTo(width - markPadding, markPadding )
+            topEndMarkPath.lineTo(width - markPadding, state.markHeight().toPx())
+            drawPath(topEndMarkPath, landMarkColor, style=markStroke)
+
+            val bottomStartMarkPath = Path()
+            bottomStartMarkPath.moveTo(state.markWidth().toPx(), height - markPadding)
+            bottomStartMarkPath.lineTo(markPadding, height - markPadding )
+            bottomStartMarkPath.lineTo(markPadding, height - state.markHeight().toPx())
+            drawPath(bottomStartMarkPath, landMarkColor, style=markStroke)
+
+            val bottomEndMarkPath = Path()
+            bottomEndMarkPath.moveTo(width - state.markWidth().toPx(), height - markPadding)
+            bottomEndMarkPath.lineTo(width - markPadding, height - markPadding )
+            bottomEndMarkPath.lineTo(width - markPadding, height - state.markHeight().toPx())
+            drawPath(bottomEndMarkPath, landMarkColor, style=markStroke)
 
         }
 
         Box(
             modifier = Modifier
                 .size(width = 16.dp, height = state.height)
-                .background(Color.Red.copy(.5f))
+                .background(resizeBgColor)
                 .align(Alignment.TopStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
@@ -180,7 +236,7 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         Box(
             modifier = Modifier
                 .size(width = state.width, height = 16.dp)
-                .background(Color.Red.copy(.5f))
+                .background(resizeBgColor)
                 .align(Alignment.TopStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
@@ -194,7 +250,7 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         Box(
             modifier = Modifier
                 .size(width = 16.dp, height = state.height)
-                .background(Color.Red.copy(.5f))
+                .background(resizeBgColor)
                 .align(Alignment.TopEnd)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
@@ -208,8 +264,8 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         Box(
             modifier = Modifier
                 .size(width = state.width, height = 16.dp)
-                .background(Color.Red.copy(.5f))
-                .align(Alignment.BottomStart)
+                .background(resizeBgColor)
+                .align(BottomStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
@@ -222,7 +278,7 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         Box(
             modifier = Modifier
                 .size(width = state.markWidth(), height = state.markHeight())
-                .background(Color.Blue.copy(.5f))
+                .background(resizeCornerBgColor)
                 .align(Alignment.TopStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
@@ -235,7 +291,7 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         Box(
             modifier = Modifier
                 .size(width = state.markWidth(), height = state.markHeight())
-                .background(Color.Blue.copy(.5f))
+                .background(resizeCornerBgColor)
                 .align(Alignment.TopEnd)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
@@ -246,7 +302,7 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         ) {}
         Box(modifier = Modifier
             .size(width = state.markWidth(), height = state.markHeight())
-            .background(Color.Blue.copy(.5f))
+            .background(resizeCornerBgColor)
             .align(BottomStart)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
@@ -258,7 +314,7 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
         Box(
             modifier = Modifier
                 .size(width = state.markWidth(), height = state.markHeight())
-                .background(Color.Blue.copy(.5f))
+                .background(resizeCornerBgColor)
                 .align(Alignment.BottomEnd)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
