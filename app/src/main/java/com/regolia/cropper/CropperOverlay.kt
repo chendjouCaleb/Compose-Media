@@ -2,7 +2,6 @@ package com.regolia.cropper
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,15 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectRatio: Float = 0f) {
+class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectRatio: Float = 1f) {
     var width by mutableStateOf(0.dp)
     var height by mutableStateOf(0.dp)
     var x by mutableStateOf(0.dp)
@@ -34,44 +31,32 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
 
     fun setSize(width: Dp, height: Dp) {
 
-        if(aspectRatio != 0f) {
+        if (aspectRatio != 0f) {
             var finalWidth = width
-            if(width / aspectRatio > parent.zoneHeight) {
+            if (width / aspectRatio > parent.zoneHeight) {
                 finalWidth = parent.zoneHeight
             }
             this.width = finalWidth
             this.height = finalWidth / aspectRatio
-        }else {
+        } else {
             this.width = width
             this.height = height
         }
     }
 
-    fun assignWidth(width: Dp) {
-        if(aspectRatio != 0f) {
-            var finalWidth = width
-            if(width / aspectRatio > parent.zoneHeight) {
-                finalWidth = parent.zoneHeight
-            }
-            this.width = finalWidth
-            this.height = finalWidth / aspectRatio
-        }else {
-            this.width = width
-        }
-    }
 
     fun markWidth(): Dp {
-        if(width > 96.dp) {
+        if (width > 96.dp) {
             return 32.dp
         }
-        return width / 3
+        return width / 3 - 2.dp
     }
 
     fun markHeight(): Dp {
-        if(height > 96.dp) {
+        if (height > 96.dp) {
             return 32.dp
         }
-        return height / 3
+        return (height / 3) - 2.dp
     }
 
     fun moveStart(offsetX: Dp) {
@@ -79,9 +64,9 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
             x += offsetX
             width -= offsetX
 
-            if(aspectRatio != 0f) {
+            if (aspectRatio != 0f) {
                 height -= offsetX / aspectRatio
-                y += (offsetX / aspectRatio)/2
+                y += (offsetX / aspectRatio) / 2
             }
         }
     }
@@ -91,35 +76,51 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
             y += offsetY
             height -= offsetY
 
-            if(aspectRatio != 0f) {
+            if (aspectRatio != 0f) {
                 width -= offsetY * aspectRatio
                 x += offsetY * aspectRatio / 2
             }
         }
     }
 
-    fun  moveEnd(offsetX: Dp) {
+    fun moveEnd(offsetX: Dp) {
         if (width - offsetX > 10.dp && x + width - offsetX < parent.zoneWidth) {
             width -= offsetX
 
-            if(aspectRatio != 0f) {
+            if (aspectRatio != 0f) {
                 height -= offsetX / aspectRatio
-                y += (offsetX / aspectRatio)/2
+                y += (offsetX / aspectRatio) / 2
             }
         }
     }
-
 
 
     fun moveBottom(offsetY: Dp) {
         if (height - offsetY > 10.dp && y + height - offsetY < parent.zoneHeight) {
             height -= offsetY
 
-            if(aspectRatio != 0f) {
+            if (aspectRatio != 0f) {
                 width -= offsetY * aspectRatio
                 x += offsetY * aspectRatio / 2
             }
         }
+    }
+
+    fun dragX(offsetX: Dp) {
+        if(x + offsetX > 0.dp && x + offsetX + width < parent.zoneWidth){
+            x += offsetX
+        }
+    }
+
+    fun dragY(offsetY: Dp) {
+        if(y + offsetY > 0.dp && y + offsetY + height < parent.zoneHeight) {
+            y += offsetY
+        }
+    }
+
+    fun drag(offsetX: Dp, offsetY: Dp) {
+        dragX(offsetX)
+        dragY(offsetY)
     }
 
     fun moveTopStart(offsetX: Dp, offsetY: Dp) {
@@ -142,17 +143,19 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
         moveEnd(offsetX)
         moveBottom(offsetY)
     }
+
+
 }
 
 @Composable
 fun FluentCropperOverlay(state: FluentCropperOverlayState) {
     val resizeCornerBgColor = Color.Transparent
     val resizeBgColor = Color.Transparent
+    val dragZoneBgColor = Color.Blue.copy(alpha = .5f)
     Box(
         Modifier
             .size(state.width, state.height)
-            .offset(state.x, state.y)
-    ) {
+            .offset(state.x, state.y)) {
         val color = Color.White.copy(alpha = .8f)
         val landMarkColor = Color.White
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -168,56 +171,73 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
             drawLine(color, Offset(width * 2 / 3, 0f), Offset(width * 2 / 3, height), strokeWidth)
             drawRect(color, Offset.Zero, Size(width, height), style = Stroke(width = strokeWidth))
 
-            drawLine(landMarkColor,
-                Offset(width / 2 - (state.markWidth()/2).toPx(), 2.dp.toPx()),
-                Offset(width / 2 + (state.markWidth()/2).toPx(), 2.dp.toPx()),
+            drawLine(
+                landMarkColor,
+                Offset(width / 2 - (state.markWidth() / 2).toPx(), 2.dp.toPx()),
+                Offset(width / 2 + (state.markWidth() / 2).toPx(), 2.dp.toPx()),
                 2.dp.toPx()
             )
 
-            drawLine(landMarkColor,
-                Offset(width / 2 - (state.markWidth()/2).toPx(), height - 2.dp.toPx()),
-                Offset(width / 2 + (state.markWidth()/2).toPx(), height - 2.dp.toPx()),
+            drawLine(
+                landMarkColor,
+                Offset(width / 2 - (state.markWidth() / 2).toPx(), height - 2.dp.toPx()),
+                Offset(width / 2 + (state.markWidth() / 2).toPx(), height - 2.dp.toPx()),
                 2.dp.toPx()
             )
 
-            drawLine(landMarkColor,
-                Offset(2.dp.toPx(), height / 2 - (state.markHeight()/2).toPx()),
-                Offset(2.dp.toPx(), height / 2 + (state.markHeight()/2).toPx()),
+            drawLine(
+                landMarkColor,
+                Offset(2.dp.toPx(), height / 2 - (state.markHeight() / 2).toPx()),
+                Offset(2.dp.toPx(), height / 2 + (state.markHeight() / 2).toPx()),
                 2.dp.toPx()
             )
 
-            drawLine(landMarkColor,
-                Offset(width - 2.dp.toPx(), height / 2 - (state.markHeight()/2).toPx()),
-                Offset(width - 2.dp.toPx(), height / 2 + (state.markHeight()/2).toPx()),
+            drawLine(
+                landMarkColor,
+                Offset(width - 2.dp.toPx(), height / 2 - (state.markHeight() / 2).toPx()),
+                Offset(width - 2.dp.toPx(), height / 2 + (state.markHeight() / 2).toPx()),
                 2.dp.toPx()
             )
 
 
             val topStartMarkPath = Path()
             topStartMarkPath.moveTo(state.markWidth().toPx(), markPadding)
-            topStartMarkPath.lineTo(markPadding, markPadding )
+            topStartMarkPath.lineTo(markPadding, markPadding)
             topStartMarkPath.lineTo(markPadding, state.markHeight().toPx())
-            drawPath(topStartMarkPath, landMarkColor, style=markStroke)
+            drawPath(topStartMarkPath, landMarkColor, style = markStroke)
 
             val topEndMarkPath = Path()
             topEndMarkPath.moveTo(width - state.markWidth().toPx(), markPadding)
-            topEndMarkPath.lineTo(width - markPadding, markPadding )
+            topEndMarkPath.lineTo(width - markPadding, markPadding)
             topEndMarkPath.lineTo(width - markPadding, state.markHeight().toPx())
-            drawPath(topEndMarkPath, landMarkColor, style=markStroke)
+            drawPath(topEndMarkPath, landMarkColor, style = markStroke)
 
             val bottomStartMarkPath = Path()
             bottomStartMarkPath.moveTo(state.markWidth().toPx(), height - markPadding)
-            bottomStartMarkPath.lineTo(markPadding, height - markPadding )
+            bottomStartMarkPath.lineTo(markPadding, height - markPadding)
             bottomStartMarkPath.lineTo(markPadding, height - state.markHeight().toPx())
-            drawPath(bottomStartMarkPath, landMarkColor, style=markStroke)
+            drawPath(bottomStartMarkPath, landMarkColor, style = markStroke)
 
             val bottomEndMarkPath = Path()
             bottomEndMarkPath.moveTo(width - state.markWidth().toPx(), height - markPadding)
-            bottomEndMarkPath.lineTo(width - markPadding, height - markPadding )
+            bottomEndMarkPath.lineTo(width - markPadding, height - markPadding)
             bottomEndMarkPath.lineTo(width - markPadding, height - state.markHeight().toPx())
-            drawPath(bottomEndMarkPath, landMarkColor, style=markStroke)
+            drawPath(bottomEndMarkPath, landMarkColor, style = markStroke)
 
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(resizeCornerBgColor)
+                .align(Alignment.Center)
+                .pointerInput(Unit) {
+                    detectDragGestures { change, dragAmount ->
+                        change.consume()
+                        state.drag(dragAmount.x.toDp(), dragAmount.y.toDp())
+                    }
+                }
+        ) {}
 
         Box(
             modifier = Modifier
@@ -323,6 +343,5 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
                     }
                 }
         ) {}
-
     }
 }
