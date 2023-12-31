@@ -1,5 +1,6 @@
 package com.regolia.media
 
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Size
@@ -68,7 +69,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CropperImage() {
     Box(Modifier.fillMaxSize().padding(32.dp)) {
-        FluentImageCropper()
+        val context = LocalContext.current
+        val  bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.pissenlit)
+        FluentImageCropper(bitmap)
     }
 }
 

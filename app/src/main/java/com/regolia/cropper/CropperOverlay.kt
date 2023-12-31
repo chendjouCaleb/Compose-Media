@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
@@ -49,14 +50,14 @@ class FluentCropperOverlayState(var parent: FluentImageCropperState, var aspectR
         if (width > 96.dp) {
             return 32.dp
         }
-        return width / 3 - 2.dp
+        return width / 3 - 1.5.dp
     }
 
     fun markHeight(): Dp {
         if (height > 96.dp) {
             return 32.dp
         }
-        return (height / 3) - 2.dp
+        return (height / 3) - 1.5.dp
     }
 
     fun moveStart(offsetX: Dp) {
@@ -164,6 +165,8 @@ fun FluentCropperOverlay(state: FluentCropperOverlayState) {
             val strokeWidth = 1.dp.toPx()
             val markStroke = Stroke(2.dp.toPx())
             val markPadding = 2.dp.toPx()
+
+
             drawLine(color, Offset(0f, height / 3), Offset(width, height / 3), strokeWidth)
             drawLine(color, Offset(0f, height * 2 / 3), Offset(width, height * 2 / 3), strokeWidth)
 
