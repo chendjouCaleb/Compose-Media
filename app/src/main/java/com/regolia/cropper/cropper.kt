@@ -66,19 +66,29 @@ fun FluentImageCropper(bitmap: Bitmap) {
         contentScale = ContentScale.FillWidth)
         Box(modifier = Modifier
             .size(state.zoneWidth, state.zoneHeight)
-            .background(Color.Black.copy(alpha = .5f)))
-        Image(bitmap.asImageBitmap(), contentDescription = "",
-            modifier = Modifier.size(state.zoneWidth, state.zoneHeight)
-                .drawWithContent {
-                    clipRect(left = overlayState.x.toPx(), top = overlayState.y.toPx(),
-                        right = (overlayState.x + overlayState.width).toPx(),
-                        bottom = (overlayState.y + overlayState.height).toPx()
-                    ) {
-                        this@drawWithContent.drawContent()
-                    }
 
+            .drawWithContent {
+                clipRect(left = overlayState.x.toPx(), top = overlayState.y.toPx(),
+                    right = (overlayState.x + overlayState.width).toPx(),
+                    bottom = (overlayState.y + overlayState.height).toPx()
+                , clipOp = ClipOp.Difference) {
+                    this@drawWithContent.drawContent()
                 }
-                )
+
+            }.background(Color.Black.copy(alpha = .5f)),
+        )
+//        Image(bitmap.asImageBitmap(), contentDescription = "",
+//            modifier = Modifier.size(state.zoneWidth, state.zoneHeight)
+//                .drawWithContent {
+//                    clipRect(left = overlayState.x.toPx(), top = overlayState.y.toPx(),
+//                        right = (overlayState.x + overlayState.width).toPx(),
+//                        bottom = (overlayState.y + overlayState.height).toPx()
+//                    ) {
+//                        this@drawWithContent.drawContent()
+//                    }
+//
+//                }
+//        )
         FluentCropperOverlay(overlayState)
     }
 }
