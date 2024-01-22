@@ -39,7 +39,7 @@ fun MediaGridItem(media: Media, onClick: (media: Media) -> Unit) {
             thumbnail = thumbnailBitmap.asImageBitmap()
 
         } catch (e: Exception) {
-            Log.e("VideoRowItem", "Error on load thumbnailof ${media.name}: ", e)
+            Log.e("VideoRowItem", "Error on load thumbnail of ${media.name}: ", e)
         }
     }
 
