@@ -8,11 +8,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 
 class BoxSize {
-    internal var currentWidth by mutableStateOf(0.dp)
-    internal var currentHeight by mutableStateOf(0.dp)
+    internal var currentWidth by mutableStateOf(0f)
+    internal var currentHeight by mutableStateOf(0f)
 
-    internal var width by mutableStateOf(0.dp)
-    internal var height by mutableStateOf(0.dp)
+    internal var width by mutableStateOf(0f)
+    internal var height by mutableStateOf(0f)
     internal var angle by mutableFloatStateOf(0f)
 
     var animatedAngle by mutableFloatStateOf(0f)
@@ -27,7 +27,7 @@ class BoxSize {
 
         if(angle == -90f || angle == -270f){
             currentHeight = width
-            currentWidth = ((width.value * width.value) / height.value).dp
+            currentWidth = (width * width) / height
         }else{
             currentHeight = height
             currentWidth = width

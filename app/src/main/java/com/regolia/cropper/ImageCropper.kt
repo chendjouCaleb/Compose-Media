@@ -48,10 +48,10 @@ fun ImageCropper(state: ImageCropperState, modifier: Modifier = Modifier) {
                 .onGloballyPositioned { coords ->
                     if (!boxSize.isInit) {
 
-                        boxSize.height = with(density) { coords.size.height.toDp() }
+                        boxSize.height = coords.size.height.toFloat()
                         boxSize.currentHeight = boxSize.height
 
-                        boxSize.width = with(density) { coords.size.width.toDp() }
+                        boxSize.width =  coords.size.width.toFloat()
                         boxSize.currentWidth = boxSize.width
 
                         overlayState.setSize(boxSize.currentWidth, boxSize.currentHeight)
@@ -68,8 +68,8 @@ fun ImageCropper(state: ImageCropperState, modifier: Modifier = Modifier) {
         Box(
             Modifier
                 .align(Alignment.Center)
-                .width(boxSize.currentWidth)
-                .height(boxSize.currentHeight)
+                .width(with(state.density){boxSize.currentWidth.toDp()})
+                .height(with(state.density){boxSize.currentHeight.toDp()})
 
                 //.wrapContentSize()
                 .graphicsLayer {
@@ -85,15 +85,16 @@ fun ImageCropper(state: ImageCropperState, modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.FillWidth)
             Box(modifier = Modifier
-                .size(boxSize.currentWidth, boxSize.currentHeight)
+                .size(with(state.density){boxSize.currentWidth.toDp()},
+                    with(state.density){boxSize.currentHeight.toDp()})
 
 
                 .drawWithContent {
                     clipRect(
-                        left = overlayState.x.toPx(),
-                        top = overlayState.y.toPx(),
-                        right = (overlayState.x + overlayState.width).toPx(),
-                        bottom = (overlayState.y + overlayState.height).toPx(),
+                        left = overlayState.x,
+                        top = overlayState.y,
+                        right = (overlayState.x + overlayState.width),
+                        bottom = (overlayState.y + overlayState.height),
                         clipOp = ClipOp.Difference
                     ) {
                         this@drawWithContent.drawContent()
@@ -107,4 +108,5 @@ fun ImageCropper(state: ImageCropperState, modifier: Modifier = Modifier) {
         }
     }
 }
+
 

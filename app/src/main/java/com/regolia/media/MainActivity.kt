@@ -104,8 +104,10 @@ fun CropperImage() {
     }else {
         Column(Modifier.fillMaxSize()) {
 
-            Box(Modifier.fillMaxWidth().weight(1f)) {
-                Image(resultBitmap!!.asImageBitmap(), "", contentScale = ContentScale.FillWidth)
+            Box(Modifier.fillMaxWidth().weight(1f).border(1.dp, Color.Blue)) {
+                Image(resultBitmap!!.asImageBitmap(), "", contentScale = ContentScale.FillWidth,
+                    modifier = Modifier.fillMaxWidth()
+                    )
             }
 
             Row(Modifier.padding(16.dp)) {

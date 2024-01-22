@@ -3,32 +3,33 @@ package com.regolia.cropper
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 
-class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f) {
+class ImageCropperOverlayState(var boxSize: BoxSize, var density: Density, var aspectRatio: Float = 1f) {
     /**
      * Current width of the cropper overlay.
      */
-    var width by mutableStateOf(0.dp)
+    var width by mutableStateOf(0f)
 
     /**
      * Current height of the cropper overlay.
      */
-    var height by mutableStateOf(0.dp)
+    var height by mutableStateOf(0f)
 
     /**
      * Current X position of the cropper overlay relatively to cropper box.
      */
-    var x by mutableStateOf(0.dp)
+    var x by mutableStateOf(0f)
 
     /**
      * Current Y position of the cropper overlay relatively to cropper box.
      */
-    var y by mutableStateOf(0.dp)
+    var y by mutableStateOf(0f)
 
-    fun setSize(width: Dp, height: Dp) {
+    fun setSize(width: Float, height: Float) {
 
         if (aspectRatio != 0f) {
             var finalWidth = width
@@ -45,26 +46,30 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
 
 
     fun markWidth(): Dp {
-        if (width > 96.dp) {
-            return 32.dp
+        with(density) {
+            if (width.toDp() > 96.dp) {
+                return 32.dp
+            }
+            return width.toDp() / 3 - 1.5.dp
         }
-        return width / 3 - 1.5.dp
     }
 
     fun markHeight(): Dp {
-        if (height > 96.dp) {
-            return 32.dp
+        with(density) {
+            if (height.toDp() > 96.dp) {
+                return 32.dp
+            }
+            return (height.toDp() / 3) - 1.5.dp
         }
-        return (height / 3) - 1.5.dp
     }
 
-    fun isExpandable(offsetX: Dp, offsetY: Dp): Boolean {
-        val conditionX = width - offsetX > 10.dp && width - offsetX <= boxSize.currentWidth
-        val conditionY = height - offsetY > 10.dp && height - offsetY <= boxSize.currentHeight
+    fun isExpandable(offsetX: Float, offsetY: Float): Boolean {
+        val conditionX = width - offsetX > 10f && width - offsetX <= boxSize.currentWidth
+        val conditionY = height - offsetY > 10f && height - offsetY <= boxSize.currentHeight
         return conditionX && conditionY
     }
 
-    fun expandX(offsetX: Dp, offsetY: Dp) {
+    fun expandX(offsetX: Float, offsetY: Float) {
         width -= offsetX
         height -= offsetY
 
@@ -72,13 +77,13 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         if(y + height + offsetY >= boxSize.currentHeight) {
             amountY = offsetY
         }
-        if(y + amountY < 0.dp) {
+        if(y + amountY < 0f) {
             amountY = y
         }
         y += amountY
     }
 
-    fun expandY(offsetX: Dp, offsetY: Dp) {
+    fun expandY(offsetX: Float, offsetY: Float) {
         width -= offsetX
         height -= offsetY
 
@@ -86,48 +91,48 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         if(x + width - offsetX >= boxSize.currentWidth) {
             amountX = offsetX
         }
-        if(x + amountX < 0.dp) {
+        if(x + amountX < 0f) {
             amountX = -x
         }
         x += amountX
     }
 
-    fun expandStart(offsetX: Dp){
+    fun expandStart(offsetX: Float){
         val offsetY = offsetX / aspectRatio
         if(isExpandable(offsetX, offsetY)) {
             expandX(offsetX, offsetY)
-            if(x + offsetX > 0.dp){
+            if(x + offsetX > 0f){
                 x += offsetX
             }
         }
     }
 
 
-    fun expandTop(offsetY: Dp){
+    fun expandTop(offsetY: Float){
         val offsetX = offsetY * aspectRatio
         if(isExpandable(offsetX, offsetY)) {
             expandY(offsetX, offsetY)
-            if(y + offsetY > 0.dp){
+            if(y + offsetY > 0f){
                 y += offsetY
             }
         }
     }
 
 
-    fun expandEnd(offsetX: Dp){
+    fun expandEnd(offsetX: Float){
         val offsetY = -offsetX / aspectRatio
         if(isExpandable(-offsetX, offsetY)) {
             expandX(-offsetX, offsetY)
             if(x + width + offsetX >= boxSize.currentWidth) {
                 x -= offsetX
             }
-            if(x < 0.dp){
-                x =0.dp
+            if(x < 0f){
+                x =0f
             }
         }
     }
 
-    fun expandBottom(offsetY: Dp){
+    fun expandBottom(offsetY: Float){
         val offsetX = -offsetY * aspectRatio
         if(isExpandable(offsetX, -offsetY)) {
             expandY(offsetX, -offsetY)
@@ -137,17 +142,17 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun expandTopStart(offsetX: Dp) {
+    fun expandTopStart(offsetX: Float) {
         val offsetY = offsetX / aspectRatio
         if(isExpandable(offsetX, offsetY)) {
             expandX(offsetX, offsetY)
-            if(x + offsetX > 0.dp){
+            if(x + offsetX > 0f){
                 x += offsetX
             }
         }
     }
 
-    fun expandTopEnd(offsetX: Dp) {
+    fun expandTopEnd(offsetX: Float) {
         val offsetY = -offsetX / aspectRatio
         if(isExpandable(-offsetX, offsetY)) {
             expandX(-offsetX, offsetY)
@@ -155,23 +160,23 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
                 x -= offsetX
             }
 
-            if(x < 0.dp){
-                x =0.dp
+            if(x < 0f){
+                x =0f
             }
         }
     }
 
-    fun expandBottomStart(offsetX: Dp) {
+    fun expandBottomStart(offsetX: Float) {
         val offsetY = offsetX / aspectRatio
         if(isExpandable(offsetX, offsetY)) {
             expandX(offsetX, offsetY)
-            if(x + offsetX > 0.dp){
+            if(x + offsetX > 0f){
                 x += offsetX
             }
         }
     }
 
-    fun expandBottomEnd(offsetX: Dp) {
+    fun expandBottomEnd(offsetX: Float) {
         val offsetY = -offsetX / aspectRatio
         if(isExpandable(-offsetX, offsetY)) {
             expandX(-offsetX, offsetY)
@@ -183,46 +188,46 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
 
 
 
-    fun moveStart(offsetX: Dp) {
-        if (x + offsetX > 0.dp && width - offsetX > 10.dp) {
+    fun moveStart(offsetX: Float) {
+        if (x + offsetX > 0f && width - offsetX > 10f) {
             x += offsetX
             width -= offsetX
         }
     }
 
-    fun moveTop(offsetY: Dp) {
-        if (y + offsetY > 0.dp && height - offsetY > 10.dp) {
+    fun moveTop(offsetY: Float) {
+        if (y + offsetY > 0f && height - offsetY > 10f) {
             y += offsetY
             height -= offsetY
         }
     }
 
-    fun moveEnd(offsetX: Dp) {
-        if (width + offsetX > 10.dp && x + width + offsetX < boxSize.currentWidth) {
+    fun moveEnd(offsetX: Float) {
+        if (width + offsetX > 10f && x + width + offsetX < boxSize.currentWidth) {
             width += offsetX
         }
     }
 
 
-    fun moveBottom(offsetY: Dp) {
-        if (height + offsetY > 10.dp && y + height + offsetY < boxSize.currentHeight) {
+    fun moveBottom(offsetY: Float) {
+        if (height + offsetY > 10f && y + height + offsetY < boxSize.currentHeight) {
             height += offsetY
         }
     }
 
-    fun dragX(offsetX: Dp) {
-        if(x + offsetX > 0.dp && x + offsetX + width < boxSize.currentWidth){
+    fun dragX(offsetX: Float) {
+        if(x + offsetX > 0f && x + offsetX + width < boxSize.currentWidth){
             x += offsetX
         }
     }
 
-    fun dragY(offsetY: Dp) {
-        if(y + offsetY > 0.dp && y + offsetY + height < boxSize.currentHeight) {
+    fun dragY(offsetY: Float) {
+        if(y + offsetY > 0f && y + offsetY + height < boxSize.currentHeight) {
             y += offsetY
         }
     }
 
-    fun drag(offsetX: Dp, offsetY: Dp) {
+    fun drag(offsetX: Float, offsetY: Float) {
         dragX(offsetX)
         dragY(offsetY)
     }
@@ -232,22 +237,8 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
 //        moveTop(offsetY)
 //    }
 
-    fun moveTopEnd(offsetX: Dp, offsetY: Dp) {
-        moveEnd(offsetX)
-        moveTop(offsetY)
-    }
 
-    fun moveBottomStart(offsetX: Dp, offsetY: Dp) {
-        moveStart(offsetX)
-        moveBottom(offsetY)
-    }
-
-    fun moveBottomEnd(offsetX: Dp, offsetY: Dp) {
-        moveEnd(offsetX)
-        moveBottom(offsetY)
-    }
-
-    fun touchStart(offsetX: Dp){
+    fun touchStart(offsetX: Float){
         if(aspectRatio != 0f) {
             expandStart(offsetX)
         }else{
@@ -255,7 +246,7 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchEnd(offsetX: Dp){
+    fun touchEnd(offsetX: Float){
         if(aspectRatio != 0f) {
             expandEnd(offsetX)
         }else{
@@ -263,7 +254,7 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchTop(offsetY: Dp){
+    fun touchTop(offsetY: Float){
         if(aspectRatio != 0f) {
             expandTop(offsetY)
         }else{
@@ -271,7 +262,7 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchBottom(offsetY: Dp){
+    fun touchBottom(offsetY: Float){
         if(aspectRatio != 0f) {
             expandBottom(offsetY)
         }else{
@@ -279,7 +270,7 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchTopStart(offsetX: Dp, offsetY: Dp) {
+    fun touchTopStart(offsetX: Float, offsetY: Float) {
         if(aspectRatio != 0f) {
             //val offset = max(offsetX, offsetY)
             expandTopStart(offsetX)
@@ -289,9 +280,8 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchBottomStart(offsetX: Dp, offsetY: Dp) {
+    fun touchBottomStart(offsetX: Float, offsetY: Float) {
         if(aspectRatio != 0f) {
-            val offset = max(offsetX, offsetY)
             expandBottomStart(offsetX)
         }else{
             moveStart(offsetX)
@@ -299,7 +289,7 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchTopEnd(offsetX: Dp, offsetY: Dp) {
+    fun touchTopEnd(offsetX: Float, offsetY: Float) {
         if(aspectRatio != 0f) {
             expandTopEnd(offsetX)
         }else{
@@ -308,7 +298,7 @@ class ImageCropperOverlayState(var boxSize: BoxSize, var aspectRatio: Float = 1f
         }
     }
 
-    fun touchBottomEnd(offsetX: Dp, offsetY: Dp) {
+    fun touchBottomEnd(offsetX: Float, offsetY: Float) {
         if(aspectRatio != 0f) {
             expandBottomEnd(offsetX)
         }else{

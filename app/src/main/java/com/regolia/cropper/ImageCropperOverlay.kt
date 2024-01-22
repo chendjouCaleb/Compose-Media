@@ -6,9 +6,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomStart
@@ -31,8 +35,8 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
     val dragZoneBgColor = Color.Transparent
     Box(
         Modifier
-            .size(state.width, state.height)
-            .offset(state.x, state.y)) {
+            .size(with(state.density){state.width.toDp()}, with(state.density){state.height.toDp()})
+            .offset(with(state.density){state.x.toDp()}, with(state.density){state.y.toDp()})) {
         val gridColor = properties.gridColor
         val landMarkColor = properties.markColor
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -119,7 +123,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.drag(dragAmount.x.toDp(), dragAmount.y.toDp())
+                        state.drag(dragAmount.x, dragAmount.y)
                     }
                 }
         ) {}
@@ -129,14 +133,15 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          */
         Box(
             modifier = Modifier
-                .size(width = 16.dp, height = state.height)
+                .fillMaxHeight()
+                .width(width = 16.dp)
                 .background(resizeBgColor)
                 .align(Alignment.TopStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
                         Log.d("Cropper", "Start X: $dragAmount")
-                        state.touchStart(dragAmount.x.toDp())
+                        state.touchStart(dragAmount.x)
                     }
                 }
         ) {}
@@ -146,13 +151,14 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          */
         Box(
             modifier = Modifier
-                .size(width = state.width, height = 16.dp)
+                .fillMaxWidth()
+                .height( height = 16.dp)
                 .background(resizeBgColor)
                 .align(Alignment.TopStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.touchTop(dragAmount.y.toDp())
+                        state.touchTop(dragAmount.y)
                     }
                 }
         ) {}
@@ -162,13 +168,14 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          */
         Box(
             modifier = Modifier
-                .size(width = 16.dp, height = state.height)
+                .fillMaxHeight()
+                .width(width = 16.dp)
                 .background(resizeBgColor)
                 .align(Alignment.TopEnd)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.touchEnd(dragAmount.x.toDp())
+                        state.touchEnd(dragAmount.x)
                     }
                 }
         ) {}
@@ -178,13 +185,14 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          */
         Box(
             modifier = Modifier
-                .size(width = state.width, height = 16.dp)
+                .fillMaxWidth()
+                .height(16.dp)
                 .background(resizeBgColor)
                 .align(BottomStart)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.touchBottom(dragAmount.y.toDp())
+                        state.touchBottom(dragAmount.y)
                     }
                 }
         ) {}
@@ -200,7 +208,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.touchTopStart(dragAmount.x.toDp(), dragAmount.y.toDp())
+                        state.touchTopStart(dragAmount.x, dragAmount.y)
                     }
                 }
         ) {}
@@ -216,7 +224,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.touchTopEnd(dragAmount.x.toDp(), dragAmount.y.toDp())
+                        state.touchTopEnd(dragAmount.x, dragAmount.y)
                     }
                 }
         ) {}
@@ -231,7 +239,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
-                    state.touchBottomStart(dragAmount.x.toDp(), dragAmount.y.toDp())
+                    state.touchBottomStart(dragAmount.x, dragAmount.y)
                 }
             }) {}
 
@@ -246,7 +254,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        state.touchBottomEnd(dragAmount.x.toDp(), dragAmount.y.toDp())
+                        state.touchBottomEnd(dragAmount.x, dragAmount.y)
                     }
                 }
         ) {}
