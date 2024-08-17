@@ -28,7 +28,7 @@ class CropperSnapshotTest {
 
     @Test
     fun setSize_shouldChangeWidthAndHeight() {
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
 
         assertEquals(50f, snapshot.width)
@@ -37,7 +37,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragX_withNegativeValue_shouldDecreaseOffsetX() {
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragX(10f)
         snapshot.dragX(-5f)
@@ -47,7 +47,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragX_withNegativeAmountLowerThanPossible_shouldSetXAtZero(){
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragX(10f)
         snapshot.dragX(-11f)
@@ -57,7 +57,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragX_withPositiveOffset_shouldIncreaseX() {
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragX(10f)
 
@@ -66,7 +66,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragX_withPositiveOffsetUpperThanPossible_shouldSetXAtMaxWith(){
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragX(10f)
         snapshot.dragX(200f)
@@ -78,7 +78,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragY_withNegativeValue_shouldDecreaseOffsetY() {
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragY(10f)
         snapshot.dragY(-5f)
@@ -88,7 +88,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragY_withNegativeAmountLowerThanPossible_shouldSetYAtZero(){
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragY(10f)
         snapshot.dragY(-11f)
@@ -98,7 +98,7 @@ class CropperSnapshotTest {
 
     @Test
     fun dragY_withPositiveOffset_shouldIncreaseY() {
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragY(10f)
 
@@ -106,12 +106,48 @@ class CropperSnapshotTest {
     }
 
     @Test
-    fun dragY_withPositiveOffsetUpperThanPossible_shouldSetYAtMayWith(){
-        val snapshot = CropperSnapshot(CropperProperties(100f, 100f))
+    fun dragY_withPositiveOffsetUpperThanPossible_shouldSetYAtMaxHeight(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
         snapshot.setSize(50f, 60f)
         snapshot.dragY(10f)
         snapshot.dragY(200f)
 
         assertEquals(40f, snapshot.y)
+    }
+
+
+    @Test
+    fun moveStart_with_positiveValue_shouldIncreaseX(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        assertEquals(0f, snapshot.x)
+        snapshot.moveStart(10f)
+
+        assertEquals(10f, snapshot.x)
+    }
+
+    @Test
+    fun moveStart_with_positiveValue_shouldDecreaseWidth(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(400f, 450f)
+        snapshot.moveStart(10f)
+
+        assertEquals(390f, snapshot.width)
+    }
+
+    @Test
+    fun moveStart_withPositiveValue_UpperThanMinWidth_shouldSetWidthAtMinWidth() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(100f, 60f)
+        snapshot.moveStart(100f)
+        assertEquals(10f, snapshot.width)
+    }
+
+    @Test
+    fun moveStart_withPositiveValue_UpperThanMinWidth_shouldSetXWithRemaining() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        snapshot.moveStart(50f)
+        assertEquals(40f, snapshot.x)
     }
 }

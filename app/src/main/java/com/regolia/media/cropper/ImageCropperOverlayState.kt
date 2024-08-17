@@ -129,11 +129,6 @@ class ImageCropperOverlayState(
         update()
     }
 
-//    fun moveTopStart(offsetX: Dp, offsetY: Dp) {
-//        moveStart(offsetX)
-//        moveTop(offsetY)
-//    }
-
     fun update() {
         x = snapshot.x
         y = snapshot.y
@@ -147,11 +142,8 @@ class ImageCropperOverlayState(
 
 
     fun touchStart(offsetX: Float) {
-        if (aspectRatio != 0f) {
-            expandStart(offsetX)
-        } else {
-            moveStart(offsetX)
-        }
+        snapshot.moveStart(offsetX)
+        update()
     }
 
     fun touchEnd(offsetX: Float) {

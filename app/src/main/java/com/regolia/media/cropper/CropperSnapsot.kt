@@ -9,10 +9,14 @@ data class CropperBox(
     val y: Float = 0f
 )
 
-data class CropperProperties(val width: Float = 0f,
-                             val height: Float = 0f,
-                             val aspectRatio: Float = 0f,
-                             val markSize: Float = 96f)
+data class CropperProperties(
+    val width: Float = 0f,
+    val height: Float = 0f,
+    val aspectRatio: Float = 0f,
+    val markSize: Float = 96f,
+    val minWidth: Float = 256f,
+    val minHeight: Float = 256f
+)
 
 class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
     var properties = CropperProperties(0f, 0f)
@@ -34,23 +38,14 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
     init {
         reset(properties)
     }
+
     fun reset(properties: CropperProperties) {
-        this.properties = properties
+        this.properties = properties.copy(aspectRatio = 0f)
         width = properties.width
         height = properties.height
         this.updateParkerSize()
     }
 
-    fun setXY(x: Float, y: Float) {
-        if (x < 0f) {
-            throw IllegalStateException("Cropper box position cannot be a 0.")
-        }
-        if (y < 0f) {
-            throw IllegalStateException("Cropper box position cannot be a 0.")
-        }
-        this.x = x
-        this.y = y
-    }
 
     fun markerWidth(): Float {
         if (properties.width > properties.markSize * 3) {
@@ -189,9 +184,21 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
 
 
     fun moveStart(offsetX: Float) {
-        if (x + offsetX > 0f && width - offsetX > 10f) {
+        if (offsetX < 0) {
             x += offsetX
             width -= offsetX
+        } else {
+           moveStartPositive(offsetX)
+        }
+    }
+
+    fun moveStartPositive(offsetX: Float){
+        if(width - offsetX >= properties.minWidth) {
+            x += offsetX
+            width -= offsetX
+        }else{
+            x = x + width - properties.minWidth
+            width = properties.minWidth
         }
     }
 
@@ -216,55 +223,54 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
     }
 
     fun dragX(offsetX: Float) {
-        if(offsetX < 0f) {
+        if (offsetX < 0f) {
             dragXNegative(offsetX)
-        }else {
+        } else {
             dragXPositive(offsetX)
         }
     }
 
     fun dragY(offsetY: Float) {
-        if(offsetY < 0f) {
+        if (offsetY < 0f) {
             dragYNegative(offsetY)
-        }else {
+        } else {
             dragYPositive(offsetY)
         }
     }
-    
+
     fun dragXPositive(offsetX: Float) {
         assert(offsetX >= 0f) { "Expect positive or 0 offsetX" }
         if (x + offsetX + width < properties.width) {
             x += offsetX
-        }else {
+        } else {
             x = properties.width - width
         }
     }
 
     fun dragXNegative(offsetX: Float) {
         assert(offsetX < 0f) { "Expect negative or 0 offsetX" }
-        if(-offsetX > x){
+        if (-offsetX > x) {
             x = 0f
-        }else{
+        } else {
             x += offsetX
         }
     }
-
 
 
     fun dragYPositive(offsetY: Float) {
         assert(offsetY >= 0f) { "Eypect positive or 0 offsetY" }
         if (y + offsetY + height < properties.height) {
             y += offsetY
-        }else {
+        } else {
             y = properties.height - height
         }
     }
 
     fun dragYNegative(offsetY: Float) {
         assert(offsetY < 0f) { "Eypect negative or 0 offsetY" }
-        if(-offsetY > y){
+        if (-offsetY > y) {
             y = 0f
-        }else{
+        } else {
             y += offsetY
         }
     }
@@ -279,6 +285,8 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
     }
 
     fun setSize(width: Float, height: Float) {
+        assert(width > properties.minWidth){"Width($width) should be upper than minWidth(${properties.minWidth})"}
+        assert(height > properties.minHeight){"Height($height) should be upper than minHeight(${properties.minHeight})"}
         this.width = width
         this.height = height
     }
