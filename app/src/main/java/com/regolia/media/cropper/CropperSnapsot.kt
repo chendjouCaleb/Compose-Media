@@ -185,10 +185,19 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
 
     fun moveStart(offsetX: Float) {
         if (offsetX < 0) {
-            x += offsetX
-            width -= offsetX
+            moveStartNegative(offsetX)
         } else {
            moveStartPositive(offsetX)
+        }
+    }
+
+    fun moveStartNegative(offsetX: Float) {
+        if(x + offsetX > 0f) {
+            x += offsetX
+            width -= offsetX
+        }else {
+            width = width + x
+            x = 0f
         }
     }
 
@@ -197,7 +206,7 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
             x += offsetX
             width -= offsetX
         }else{
-            x = x + width - properties.minWidth
+            x += width - properties.minWidth
             width = properties.minWidth
         }
     }
@@ -287,6 +296,8 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
     fun setSize(width: Float, height: Float) {
         assert(width > properties.minWidth){"Width($width) should be upper than minWidth(${properties.minWidth})"}
         assert(height > properties.minHeight){"Height($height) should be upper than minHeight(${properties.minHeight})"}
+        assert(width <= properties.width){"Width($width) should be lower than maxWidth(${properties.width})"}
+        assert(height <= properties.height){"Height($height) should be lower than maxHeight(${properties.height})"}
         this.width = width
         this.height = height
     }
