@@ -1,4 +1,4 @@
-package com.regolia.cropper
+package com.regolia.media.cropper
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -10,7 +10,7 @@ data class ImageCropperProperties(
     var markStrokeWidth: Dp = 2.dp,
     var markPadding: Dp = 2.dp,
     var gridStrokeWidth: Dp = 1.dp,
-    var clipColor: Color = Color.Red.copy(alpha = .8f),
+    var clipColor: Color = Color.Black.copy(alpha = .5f),
 
     var aspectRatio: Float = 1f
 )

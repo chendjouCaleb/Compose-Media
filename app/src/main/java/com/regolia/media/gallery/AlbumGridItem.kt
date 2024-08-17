@@ -1,5 +1,6 @@
 package com.regolia.media.gallery
 
+import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
 import androidx.compose.foundation.Image
@@ -27,13 +28,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun AlbumGridItem(album: Album, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var thumbnail by remember { mutableStateOf<ImageBitmap?>(null) }
+    var thumbnail by remember { mutableStateOf<Bitmap?>(null) }
 
     val size = 256
 
@@ -47,7 +49,7 @@ fun AlbumGridItem(album: Album, modifier: Modifier = Modifier) {
                         Size(size, size),
                         null
                     )
-                thumbnail = thumbnailBitmap.asImageBitmap()
+                thumbnail = thumbnailBitmap
 
             } catch (e: Exception) {
                 Log.e(
@@ -63,8 +65,8 @@ fun AlbumGridItem(album: Album, modifier: Modifier = Modifier) {
         Box(Modifier.size(size.dp).clip(RoundedCornerShape(2.dp))
             .background(MaterialTheme.colorScheme.surface), contentAlignment = Alignment.TopStart) {
             if (thumbnail != null) {
-                Image(
-                    bitmap = thumbnail!!, contentDescription = "",
+                AsyncImage(
+                    model = thumbnail!!, contentDescription = "",
                     modifier = Modifier.size(size.dp),
                     contentScale = ContentScale.Crop
                 )

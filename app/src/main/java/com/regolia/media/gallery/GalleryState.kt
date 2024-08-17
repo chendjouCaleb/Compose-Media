@@ -5,31 +5,28 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
-fun rememberGalleryViewModel(onSelect: (meda: Media) -> Unit, onDismissRequest: () -> Unit): GalleryViewModel {
+fun rememberGalleryState(value: Media? = null, onMediaClick: (meda: Media) -> Unit): GalleryState {
     val context = LocalContext.current
     val navController = rememberNavController()
-    val scope = rememberCoroutineScope()
-    return viewModel { GalleryViewModel(context, navController, scope, onSelect, onDismissRequest) }
+    return remember { GalleryState(context, navController,  value, onMediaClick) }
 }
 
-class GalleryViewModel(
+class GalleryState(
     val context: Context,
     val navController: NavHostController,
-    val coroutineScope: CoroutineScope,
+    value: Media?,
     val onSelect: (meda: Media) -> Unit,
-    val onDismissRequest: () -> Unit
-) : ViewModel() {
+)  {
     private val mediaRepository = MediaRepository(context)
+
+    var selectedMedia: Media? by mutableStateOf(value)
     var medias by mutableStateOf(listOf<Media>())
     var albums by mutableStateOf(listOf<Album>())
 

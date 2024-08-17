@@ -23,15 +23,15 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryIndex(viewModel: GalleryViewModel) {
+fun GalleryIndex(viewModel: GalleryState) {
     Scaffold(topBar = {
         TopAppBar(
             navigationIcon = {
-                IconButton(onClick = { viewModel.onDismissRequest() }) {
+                IconButton(onClick = { viewModel }) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
                 }
             },
-            title = { Text("Choisir une image") }
+            title = { Text(viewModel.selectedMedia?.name ?: "Aucun") }
         )
     }) {
         Column(Modifier.padding(it)) {

@@ -22,11 +22,11 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumIndex(album: Album, viewModel: GalleryViewModel) {
+fun AlbumIndex(album: Album, galleryState: GalleryState) {
     Scaffold(topBar = {
         TopAppBar(
             navigationIcon = {
-                IconButton(onClick = { viewModel.navController.popBackStack() }) {
+                IconButton(onClick = { galleryState.navController.popBackStack() }) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "")
                 }
             },
@@ -40,10 +40,10 @@ fun AlbumIndex(album: Album, viewModel: GalleryViewModel) {
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(viewModel.medias, key = { it.id }) {media ->
-                    MediaGridItem(media) {
-                        viewModel.onSelect(media)
-                        viewModel.onDismissRequest()
+                items(galleryState.medias, key = { it.id }) { media ->
+                    MediaGridItem(media,
+                        galleryState.selectedMedia != null && galleryState.selectedMedia!!.id == media.id) {
+                        galleryState.onSelect(media)
                     }
                 }
             }

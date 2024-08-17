@@ -7,12 +7,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Composable
-fun rememberGalleryPicker(onChange: (media: Media) -> Unit): GalleryPickerState {
-    return remember { GalleryPickerState(onChange) }
+fun rememberGalleryPicker(): GalleryPickerState {
+    return remember { GalleryPickerState() }
 }
 
-class GalleryPickerState(var onChange: (media: Media) -> Unit) {
+class GalleryPickerState() {
     var visible by mutableStateOf(false)
+        private set
 
     fun open() {
         visible = true
@@ -24,9 +25,12 @@ class GalleryPickerState(var onChange: (media: Media) -> Unit) {
 }
 
 @Composable
-fun GalleryPicker(state: GalleryPickerState) {
-    val viewModel = rememberGalleryViewModel(state.onChange) { state.close() }
+fun GalleryPicker(state: GalleryPickerState, value: Media?, onChange: (media: Media) -> Unit) {
+    val galleryState = rememberGalleryState(value) {
+        onChange(it)
+        state.close()
+    }
     FullScreenDialog(visible = state.visible, onDismissRequest = { state.close() }) {
-        Gallery(viewModel)
+        Gallery(value, galleryState)
     }
 }

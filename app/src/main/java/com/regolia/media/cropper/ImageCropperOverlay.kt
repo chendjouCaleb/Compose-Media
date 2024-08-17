@@ -1,4 +1,4 @@
-package com.regolia.cropper
+package com.regolia.media.cropper
 
 import android.util.Log
 import androidx.compose.foundation.Canvas
@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
 
@@ -56,58 +57,58 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
 
             /** Top middle mark **/
             drawLine( landMarkColor,
-                Offset(width / 2 - (state.markWidth() / 2).toPx(), properties.markPadding.toPx()),
-                Offset(width / 2 + (state.markWidth() / 2).toPx(), properties.markPadding.toPx()),
+                Offset(width / 2 - (state.markWidth / 2), properties.markPadding.toPx()),
+                Offset(width / 2 + (state.markWidth / 2), properties.markPadding.toPx()),
                 properties.markStrokeWidth.toPx()
             )
 
             /** Bottom middle mark **/
             drawLine(
                 landMarkColor,
-                Offset(width / 2 - (state.markWidth() / 2).toPx(), height - properties.markPadding.toPx()),
-                Offset(width / 2 + (state.markWidth() / 2).toPx(), height - properties.markPadding.toPx()),
+                Offset(width / 2 - (state.markWidth / 2), height - properties.markPadding.toPx()),
+                Offset(width / 2 + (state.markWidth / 2), height - properties.markPadding.toPx()),
                 properties.markStrokeWidth.toPx()
             )
 
             /** Start middle mark **/
             drawLine(
                 landMarkColor,
-                Offset(properties.markPadding.toPx(), height / 2 - (state.markHeight() / 2).toPx()),
-                Offset(properties.markPadding.toPx(), height / 2 + (state.markHeight() / 2).toPx()),
+                Offset(properties.markPadding.toPx(), height / 2 - (state.markHeight / 2)),
+                Offset(properties.markPadding.toPx(), height / 2 + (state.markHeight / 2)),
                 properties.markStrokeWidth.toPx()
             )
 
             /** Start middle mark **/
             drawLine(
                 landMarkColor,
-                Offset(width - properties.markPadding.toPx(), height / 2 - (state.markHeight() / 2).toPx()),
-                Offset(width - properties.markPadding.toPx(), height / 2 + (state.markHeight() / 2).toPx()),
+                Offset(width - properties.markPadding.toPx(), height / 2 - (state.markHeight / 2)),
+                Offset(width - properties.markPadding.toPx(), height / 2 + (state.markHeight / 2)),
                 properties.markStrokeWidth.toPx()
             )
 
 
             val topStartMarkPath = Path()
-            topStartMarkPath.moveTo(state.markWidth().toPx(), markPadding)
+            topStartMarkPath.moveTo(state.markWidth, markPadding)
             topStartMarkPath.lineTo(markPadding, markPadding)
-            topStartMarkPath.lineTo(markPadding, state.markHeight().toPx())
+            topStartMarkPath.lineTo(markPadding, state.markHeight)
             drawPath(topStartMarkPath, landMarkColor, style = markStroke)
 
             val topEndMarkPath = Path()
-            topEndMarkPath.moveTo(width - state.markWidth().toPx(), markPadding)
+            topEndMarkPath.moveTo(width - state.markWidth, markPadding)
             topEndMarkPath.lineTo(width - markPadding, markPadding)
-            topEndMarkPath.lineTo(width - markPadding, state.markHeight().toPx())
+            topEndMarkPath.lineTo(width - markPadding, state.markHeight)
             drawPath(topEndMarkPath, landMarkColor, style = markStroke)
 
             val bottomStartMarkPath = Path()
-            bottomStartMarkPath.moveTo(state.markWidth().toPx(), height - markPadding)
+            bottomStartMarkPath.moveTo(state.markWidth, height - markPadding)
             bottomStartMarkPath.lineTo(markPadding, height - markPadding)
-            bottomStartMarkPath.lineTo(markPadding, height - state.markHeight().toPx())
+            bottomStartMarkPath.lineTo(markPadding, height - state.markHeight)
             drawPath(bottomStartMarkPath, landMarkColor, style = markStroke)
 
             val bottomEndMarkPath = Path()
-            bottomEndMarkPath.moveTo(width - state.markWidth().toPx(), height - markPadding)
+            bottomEndMarkPath.moveTo(width - state.markWidth, height - markPadding)
             bottomEndMarkPath.lineTo(width - markPadding, height - markPadding)
-            bottomEndMarkPath.lineTo(width - markPadding, height - state.markHeight().toPx())
+            bottomEndMarkPath.lineTo(width - markPadding, height - state.markHeight)
             drawPath(bottomEndMarkPath, landMarkColor, style = markStroke)
 
         }
@@ -200,9 +201,12 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
         /**
          * Top Start resizer box.
          */
+        val density = LocalDensity.current
+        val markWidth = with(density) {state.markWidth.toDp()}
+        val markHeight = with(density) {state.markHeight.toDp()}
         Box(
             modifier = Modifier
-                .size(width = state.markWidth(), height = state.markHeight())
+                .size(width = markWidth, height = markHeight)
                 .background(resizeBgColor)
                 .align(Alignment.TopStart)
                 .pointerInput(Unit) {
@@ -218,7 +222,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          */
         Box(
             modifier = Modifier
-                .size(width = state.markWidth(), height = state.markHeight())
+                .size(width = markWidth, height = markHeight)
                 .background(resizeCornerBgColor)
                 .align(Alignment.TopEnd)
                 .pointerInput(Unit) {
@@ -233,7 +237,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          * Bottom Start resizer box.
          */
         Box(modifier = Modifier
-            .size(width = state.markWidth(), height = state.markHeight())
+            .size(width = markWidth, height = markHeight)
             .background(resizeCornerBgColor)
             .align(BottomStart)
             .pointerInput(Unit) {
@@ -248,7 +252,7 @@ fun FluentCropperOverlay(state: ImageCropperOverlayState, properties: ImageCropp
          */
         Box(
             modifier = Modifier
-                .size(width = state.markWidth(), height = state.markHeight())
+                .size(width = markWidth, height = markHeight)
                 .background(resizeCornerBgColor)
                 .align(Alignment.BottomEnd)
                 .pointerInput(Unit) {

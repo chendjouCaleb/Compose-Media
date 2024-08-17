@@ -12,16 +12,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import kotlinx.coroutines.delay
 
 @Composable
-fun Gallery(viewModel: GalleryViewModel) {
+fun Gallery(selectedMedia: Media?, galleryState: GalleryState) {
+    galleryState.selectedMedia = selectedMedia
     val context = LocalContext.current
 
     val permissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
         if (it) {
-            viewModel.list()
+            galleryState.list()
         }
     }
 
@@ -37,21 +39,19 @@ fun Gallery(viewModel: GalleryViewModel) {
         } else {
             permissionRequest.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
+        delay(300)
     }
-    NavHost(navController = viewModel.navController, startDestination = "index") {
+    NavHost(navController = galleryState.navController, startDestination = "index") {
         composable("index") {
-            GalleryIndex(viewModel)
+            GalleryIndex(galleryState)
         }
 
         composable("albums/{albumId}") {
-            val albumId =it.arguments?.getString("albumId")!!.toInt()
-            val album = viewModel.albums.find { f -> f.id == albumId }!!
+            val albumId = it.arguments?.getString("albumId")!!.toInt()
+            val album = galleryState.albums.find { f -> f.id == albumId }!!
 
             Log.e("ALBUM", "Id: $albumId ")
-            AlbumIndex(album, viewModel)
+            AlbumIndex(album, galleryState)
         }
-
     }
-
-
 }

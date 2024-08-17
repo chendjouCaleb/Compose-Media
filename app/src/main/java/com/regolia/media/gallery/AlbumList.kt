@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun GalleryAlbumList(viewModel: GalleryViewModel) {
+fun GalleryAlbumList(viewModel: GalleryState) {
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize =180.dp),
         contentPadding = PaddingValues(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),

@@ -1,31 +1,46 @@
-package com.regolia.cropper
+package com.regolia.media.cropper
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun rememberImageCropperState(bitmap: Bitmap, properties: ImageCropperProperties): ImageCropperState {
-    val boxSize = remember { BoxSize()}
+fun rememberImageCropperState(properties: ImageCropperProperties): ImageCropperState {
+    val boxSize = remember { BoxSize() }
+
 
     val density = LocalDensity.current
-    val overlayState = remember { ImageCropperOverlayState(boxSize, density, properties.aspectRatio)}
+    val markSize = with(density) { 32.dp.toPx() }
+    val cropperProperties = CropperProperties().copy(aspectRatio = properties.aspectRatio, markSize = markSize)
+    val snapshot = CropperSnapshot()
+    snapshot.reset(cropperProperties)
+    val overlayState = remember { ImageCropperOverlayState(snapshot,boxSize, density, properties.aspectRatio) }
     return remember {
-        ImageCropperState(boxSize, overlayState, bitmap, properties, density)
+        ImageCropperState(snapshot, boxSize, overlayState,  properties, density)
     }
 }
 
-class ImageCropperState(var boxSize: BoxSize,
+class ImageCropperState(
+    var snapshot: CropperSnapshot,
+    var boxSize: BoxSize,
                         var overlayState: ImageCropperOverlayState,
-                        var bitmap: Bitmap,
                         var properties: ImageCropperProperties,
                         var density: Density
     ) {
+
+    var bitmap: Bitmap? by mutableStateOf(null)
+    fun changeBitmap(bitmap: Bitmap) {
+        this.bitmap = bitmap
+    }
 
     fun rotate(){
         boxSize.rotate()
@@ -54,37 +69,24 @@ class ImageCropperState(var boxSize: BoxSize,
         }
     }
 
-//    fun crop(): Bitmap {
-//        val xr = boxSize.width / boxSize.currentWidth
-//        val yr = boxSize.height / boxSize.currentHeight
-//
-//        val x = (overlayState.x * xr).toInt()
-//        val y = (overlayState.y * yr).toInt()
-//
-//
-//
-//        val width = (overlayState.width * xr).toInt()
-//        val height = (overlayState.height * yr).toInt()
-//        val matrix = Matrix()
-//        matrix.postRotate(boxSize.angle)
-//        return Bitmap.createBitmap(bitmap, x, y, width, height, matrix, true)
-//    }
-
 
     fun crop(): Bitmap {
+        if(bitmap == null){
+            throw IllegalStateException("Cannot crop with null bitmap.")
+        }
 
         val heightRatio = overlayState.height / boxSize.currentHeight
         val widthRatio = overlayState.width / boxSize.currentWidth
         val yRatio = overlayState.y / boxSize.currentHeight
         val xRatio = overlayState.x / boxSize.currentWidth
 
-        val x = (bitmap.width * xRatio).toInt()
-        val y = (bitmap.height * yRatio).toInt()
+        val x = (bitmap!!.width * xRatio).toInt()
+        val y = (bitmap!!.height * yRatio).toInt()
 
-        val width = (bitmap.width * widthRatio).toInt()
-        val height = (bitmap.height * heightRatio).toInt()
+        val width = (bitmap!!.width * widthRatio).toInt()
+        val height = (bitmap!!.height * heightRatio).toInt()
         val matrix = Matrix()
         matrix.postRotate(boxSize.angle)
-        return Bitmap.createBitmap(bitmap, x, y, width, height, matrix, true)
+        return Bitmap.createBitmap(bitmap!!, x, y, width, height, matrix, true)
     }
 }

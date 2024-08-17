@@ -2,8 +2,10 @@ package com.regolia.media
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Size
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,10 +42,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.regolia.cropper.ImageCropper
-import com.regolia.cropper.ImageCropperProperties
-import com.regolia.cropper.rememberImageCropperState
+import coil.compose.AsyncImage
+import com.regolia.media.cropper.ImageCropper
+import com.regolia.media.cropper.ImageCropperDialog
+import com.regolia.media.cropper.ImageCropperProperties
+import com.regolia.media.cropper.rememberImageCropperDialog
+import com.regolia.media.cropper.rememberImageCropperState
 import com.regolia.media.gallery.GalleryPicker
+import com.regolia.media.gallery.Media
 import com.regolia.media.gallery.rememberGalleryPicker
 import com.regolia.media.ui.theme.MediaTheme
 
@@ -58,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CropperImage()
+                    Greeting()
                 }
             }
         }
@@ -75,7 +81,7 @@ fun CropperImage() {
             val context = LocalContext.current
             val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.bird)
             val properties = ImageCropperProperties(clipColor = Color.Black.copy(alpha = .5f), aspectRatio = 1f)
-            val state = rememberImageCropperState(bitmap, properties)
+            val state = rememberImageCropperState(properties)
             ImageCropper(state,
                 Modifier
                     .padding(16.dp)
@@ -104,7 +110,11 @@ fun CropperImage() {
     }else {
         Column(Modifier.fillMaxSize()) {
 
-            Box(Modifier.fillMaxWidth().weight(1f).border(1.dp, Color.Blue)) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .border(1.dp, Color.Blue)) {
                 Image(resultBitmap!!.asImageBitmap(), "", contentScale = ContentScale.FillWidth,
                     modifier = Modifier.fillMaxWidth()
                     )
@@ -123,14 +133,43 @@ fun CropperImage() {
 fun Greeting() {
     val context = LocalContext.current
     var uri by remember { mutableStateOf<Uri?>(null) }
-    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-    val pickerState = rememberGalleryPicker(onChange = { media ->
-        uri = media.uri
-        bitmap = context.contentResolver.loadThumbnail(media.uri, Size(512, 512), null).asImageBitmap()
-    })
+    var selectedMedia: Media? by remember { mutableStateOf(null) }
 
-    GalleryPicker(pickerState)
+    val pickerState = rememberGalleryPicker()
+    val cropperDialogState = rememberImageCropperDialog()
 
+    ImageCropperDialog(state = cropperDialogState) {
+        bitmap = it
+    }
+
+    GalleryPicker(pickerState, selectedMedia){
+        media ->
+            selectedMedia = media
+
+            uri = media.uri
+            val source = ImageDecoder.createSource(context.contentResolver, media.uri)
+            bitmap = ImageDecoder.decodeBitmap(source)
+
+            cropperDialogState.open(bitmap!!)
+    }
+
+
+
+    Column {
+        Text(text = selectedMedia?.id.toString())
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()){
+            if(bitmap != null){
+                AsyncImage(model = bitmap, contentDescription = "", contentScale = ContentScale.FillWidth)
+            }
+        }
+        Button(onClick = { pickerState.open() }) {
+            Text("Ouvrir")
+        }
+    }
 }
 
