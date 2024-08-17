@@ -196,7 +196,7 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
             x += offsetX
             width -= offsetX
         }else {
-            width = width + x
+            width += x
             x = 0f
         }
     }
@@ -205,9 +205,33 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
         if(width - offsetX >= properties.minWidth) {
             x += offsetX
             width -= offsetX
-        }else{
+        } else {
             x += width - properties.minWidth
             width = properties.minWidth
+        }
+    }
+
+    fun moveEnd(offsetX: Float) {
+        if (offsetX < 0f){
+            moveEndNegative(offsetX)
+        }else{
+            moveEndPositive(offsetX)
+        }
+    }
+
+    fun moveEndPositive(offsetX: Float) {
+        if(x + width + offsetX > properties.width){
+            width = properties.width - x
+        }else {
+            width += offsetX
+        }
+    }
+
+    fun moveEndNegative(offsetX: Float) {
+        if(width + offsetX < properties.minWidth) {
+            width = properties.minWidth
+        }else {
+            width += offsetX
         }
     }
 
@@ -218,11 +242,7 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
         }
     }
 
-    fun moveEnd(offsetX: Float) {
-        if (width + offsetX > 10f && x + width + offsetX < properties.width) {
-            width += offsetX
-        }
-    }
+
 
 
     fun moveBottom(offsetY: Float) {
