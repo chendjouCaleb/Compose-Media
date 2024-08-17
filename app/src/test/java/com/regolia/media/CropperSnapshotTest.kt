@@ -190,6 +190,7 @@ class CropperSnapshotTest {
         assertEquals(0f, snapshot.x)
     }
 
+
     @Test
     fun moveEnd_withPositiveValue_shouldIncreaseWidthWithOffsetX() {
         val snapshot = CropperSnapshot(
@@ -267,6 +268,168 @@ class CropperSnapshotTest {
         )
         snapshot.setSize(50f, 60f)
         snapshot.moveEnd(-60f)
+
+        assertEquals(0f, snapshot.x)
+    }
+
+
+
+
+
+    @Test
+    fun moveTop_with_positiveValue_shouldIncreaseYByOffset(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        assertEquals(0f, snapshot.y)
+        snapshot.moveTop(10f)
+
+        assertEquals(10f, snapshot.y)
+    }
+
+    @Test
+    fun moveTop_with_positiveValue_shouldDecreaseHeightByOffset(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 50f)
+        snapshot.moveTop(10f)
+
+        assertEquals(40f, snapshot.height)
+    }
+
+    @Test
+    fun moveTop_withPositiveValue_UpperThanMinHeight_shouldSetHeightAtMinHeight() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(100f, 60f)
+        snapshot.moveTop(100f)
+        assertEquals(10f, snapshot.height)
+    }
+
+    @Test
+    fun moveTop_withPositiveValue_FinalHeightLowerThanMinHeight_shouldSetYWithRemaining() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 50f)
+        snapshot.moveTop(50f)
+        assertEquals(40f, snapshot.y)
+    }
+
+    @Test
+    fun moveTop_withNegativeOffset_shouldDecreaseY_byOffset(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        assertEquals(0f, snapshot.y)
+        snapshot.dragY(20f)
+        snapshot.moveTop(-10f)
+
+        assertEquals(10f, snapshot.y)
+    }
+
+    @Test
+    fun moveTop_withNegativeOffset_shouldIncreaseHeightByOffset(){
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(40f, 40f)
+        snapshot.dragY(20f)
+        snapshot.moveTop(-10f)
+
+        assertEquals(50f, snapshot.height)
+    }
+
+    @Test
+    fun moveTop_withNegativeValue_FinalTopLowerThanZero_shouldIncreaseHeightByRemaining() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        snapshot.dragY(20f)
+        snapshot.moveTop(-30f)
+        assertEquals(80f, snapshot.height)
+    }
+
+    @Test
+    fun moveTop_withNegativeValue_FinalTopLowerThanZero_shouldSetTopAtZero() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        snapshot.dragY(10f)
+        snapshot.moveTop(-50f)
+        assertEquals(0f, snapshot.y)
+    }
+
+
+
+
+    @Test
+    fun moveBottom_withPositiveValue_shouldIncreaseHeightByOffsetY() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.moveBottom(10f)
+
+        assertEquals(60f, snapshot.height)
+    }
+
+    @Test
+    fun moveBottom_withPositiveValue_shouldNotChangeTop() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 60f)
+        snapshot.moveBottom(10f)
+
+        assertEquals(0f, snapshot.y)
+    }
+
+    @Test
+    fun moveBottom_withPositiveValue_withFinalBottomUpperThanMaxHeight_shouldIncreaseHeightByRemainingHeight() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.moveBottom(50f)
+
+        assertEquals(100f, snapshot.height)
+    }
+
+
+
+    @Test
+    fun moveBottom_withNegativeValue_shouldDecreaseHeightByOffsetY() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.moveBottom(-10f)
+
+        assertEquals(40f, snapshot.height)
+    }
+
+    @Test
+    fun moveBottom_withNegativeValue_shouldNotChangeTop() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.moveBottom(-10f)
+
+        assertEquals(0f, snapshot.y)
+    }
+
+
+
+    @Test
+    fun moveBottom_withNegativeValue_FinalHeightLowerThanMinHeight_shouldSetHeightAtMinHeight() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.moveBottom(-60f)
+
+        assertEquals(10f, snapshot.height)
+    }
+
+    @Test
+    fun moveBottom_withNegativeValue_FinalHeightLowerThanMinHeight_shouldNotChangeX() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.moveBottom(-60f)
 
         assertEquals(0f, snapshot.x)
     }

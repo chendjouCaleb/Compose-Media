@@ -101,21 +101,12 @@ class ImageCropperOverlayState(
         update()
     }
 
-
-    fun moveStart(offsetX: Float) {
-        snapshot.moveStart(offsetX)
-        update()
-    }
-
     fun moveTop(offsetY: Float) {
        snapshot.moveTop(offsetY)
         update()
     }
 
-    fun moveEnd(offsetX: Float) {
-        snapshot.moveEnd(offsetX)
-        update()
-    }
+
 
 
     fun moveBottom(offsetY: Float) {
@@ -147,27 +138,18 @@ class ImageCropperOverlayState(
     }
 
     fun touchEnd(offsetX: Float) {
-        if (aspectRatio != 0f) {
-            expandEnd(offsetX)
-        } else {
-            moveEnd(offsetX)
-        }
+        snapshot.moveEnd(offsetX)
+        update()
     }
 
     fun touchTop(offsetY: Float) {
-        if (aspectRatio != 0f) {
-            expandTop(offsetY)
-        } else {
-            moveTop(offsetY)
-        }
+        snapshot.moveTop(offsetY)
+        update()
     }
 
     fun touchBottom(offsetY: Float) {
-        if (aspectRatio != 0f) {
-            expandBottom(offsetY)
-        } else {
-            moveBottom(offsetY)
-        }
+        snapshot.moveBottom(offsetY)
+        update()
     }
 
     fun touchTopStart(offsetX: Float, offsetY: Float) {
@@ -175,7 +157,6 @@ class ImageCropperOverlayState(
             //val offset = max(offsetX, offsetY)
             expandTopStart(offsetX)
         } else {
-            moveStart(offsetX)
             moveTop(offsetY)
         }
     }
@@ -184,7 +165,6 @@ class ImageCropperOverlayState(
         if (aspectRatio != 0f) {
             expandBottomStart(offsetX)
         } else {
-            moveStart(offsetX)
             moveBottom(offsetY)
         }
     }
@@ -193,7 +173,6 @@ class ImageCropperOverlayState(
         if (aspectRatio != 0f) {
             expandTopEnd(offsetX)
         } else {
-            moveEnd(offsetX)
             moveTop(offsetY)
         }
     }
@@ -202,7 +181,7 @@ class ImageCropperOverlayState(
         if (aspectRatio != 0f) {
             expandBottomEnd(offsetX)
         } else {
-            moveEnd(offsetX)
+
             moveBottom(offsetY)
         }
     }

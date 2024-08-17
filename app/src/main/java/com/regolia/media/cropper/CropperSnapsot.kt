@@ -236,9 +236,30 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
     }
 
     fun moveTop(offsetY: Float) {
-        if (y + offsetY > 0f && height - offsetY > 10f) {
+        if (offsetY < 0) {
+            moveTopNegative(offsetY)
+        } else {
+            moveTopPositive(offsetY)
+        }
+    }
+
+    private fun moveTopNegative(offsetY: Float) {
+        if(y + offsetY > 0f) {
             y += offsetY
             height -= offsetY
+        }else {
+            height += y
+            y = 0f
+        }
+    }
+
+    private fun moveTopPositive(offsetY: Float){
+        if(height - offsetY >= properties.minHeight) {
+            y += offsetY
+            height -= offsetY
+        } else {
+            y += height - properties.minHeight
+            height = properties.minHeight
         }
     }
 
@@ -246,7 +267,25 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
 
 
     fun moveBottom(offsetY: Float) {
-        if (height + offsetY > 10f && y + height + offsetY < properties.height) {
+        if (offsetY < 0f){
+            moveBottomNegative(offsetY)
+        }else{
+            moveBottomPositive(offsetY)
+        }
+    }
+
+    fun moveBottomPositive(offsetY: Float) {
+        if(y + height + offsetY > properties.height){
+            height = properties.height - y
+        }else {
+            height += offsetY
+        }
+    }
+
+    fun moveBottomNegative(offsetY: Float) {
+        if(height + offsetY < properties.minHeight) {
+            height = properties.minHeight
+        }else {
             height += offsetY
         }
     }
