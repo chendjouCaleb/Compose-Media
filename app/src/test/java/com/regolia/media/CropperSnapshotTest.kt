@@ -861,4 +861,81 @@ class CropperSnapshotTest {
     }
 
     //endregion
+
+    //region coerceOffsetX
+    @Test
+    fun coerceOffsetX_withZeroAspectRatio_shouldReturnOffsetX() {
+        val snapshot = CropperSnapshot(
+        CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 0f))
+
+        val coercedOffsetX = snapshot.coerceOffsetX(10f)
+        assertEquals(10f, coercedOffsetX)
+    }
+
+    @Test
+    fun coerceOffsetX_withAvailableY_shouldReturnOffsetX() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f))
+
+        snapshot.setSize(10f, 10f)
+        val coercedOffsetX = snapshot.coerceOffsetX(10f)
+        assertEquals(10f, coercedOffsetX)
+    }
+
+    @Test
+    fun coerceOffsetX_WithHeightUpperThanMaxHeight_shouldReturnScaledOffsetX() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 4f))
+        snapshot.setSize(20f, 80f)
+        val coercedOffsetX = snapshot.coerceOffsetX(10f)
+        assertEquals(5f, coercedOffsetX)
+    }
+
+    @Test
+    fun coerceOffsetX_WithHeightLowerThanMinHeight_shouldReturnScaledOffsetX() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = .5f))
+        snapshot.setSize(40f, 24f)
+        val coercedOffsetX = snapshot.coerceOffsetX(-30f)
+        assertEquals(-28f, coercedOffsetX)
+    }
+
+
+    //region coerceOffsetY
+    @Test
+    fun coerceOffsetY_withZeroAspectRatio_shouldReturnOffsetY() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 0f))
+
+        val coercedOffsetY = snapshot.coerceOffsetY(10f)
+        assertEquals(10f, coercedOffsetY)
+    }
+
+    @Test
+    fun coerceOffsetY_withAvailableX_shouldReturnOffsetY() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f))
+
+        snapshot.setSize(10f, 10f)
+        val coercedOffsetY = snapshot.coerceOffsetY(10f)
+        assertEquals(10f, coercedOffsetY)
+    }
+
+    @Test
+    fun coerceOffsetY_WithWidthUpperThanMaxWidth_shouldReturnScaledOffsetY() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = .5f))
+        snapshot.setSize(80f, 40f)
+        val coercedOffsetY = snapshot.coerceOffsetY(20f)
+        assertEquals(10f, coercedOffsetY)
+    }
+
+    @Test
+    fun coerceOffsetY_WithWidthLowerThanMinWidth_shouldReturnScaledOffsetY() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 4f))
+        snapshot.setSize(20f, 80f)
+        val coercedOffsetY = snapshot.coerceOffsetY(-60f)
+        assertEquals(-40f, coercedOffsetY)
+    }
 }

@@ -8,8 +8,8 @@ data class CropperBox(
 )
 
 data class CropperProperties(
-    val width: Float = 0f,
-    val height: Float = 0f,
+    val width: Float = 256f,
+    val height: Float = 256f,
     val aspectRatio: Float = 0f,
     val markSize: Float = 96f,
     val minWidth: Float = 256f,
@@ -44,8 +44,14 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
 
     fun reset(properties: CropperProperties) {
         this.properties = properties
-        width = properties.width
-        height = properties.height
+        if(properties.aspectRatio != 0f) {
+            changeWidth(properties.width)
+            changeHeight(properties.width * properties.aspectRatio)
+        }else {
+            width = properties.width
+            height = properties.height
+        }
+
         this.updateParkerSize()
     }
 
@@ -166,33 +172,63 @@ class CropperSnapshot(properties: CropperProperties = CropperProperties()) {
         }
     }
 
+    fun coerceOffsetX(offsetX: Float): Float {
+        if(properties.aspectRatio == 0f) {
+            return offsetX
+        }
+        val offsetY = offsetX * properties.aspectRatio
+        if(offsetX > 0f && offsetY > properties.height - height){
+            return (properties.height - height) / properties.aspectRatio
+        }
+        if(offsetX < 0f && -offsetY > height - properties.minHeight){
+            return -(height - properties.minHeight) / properties.aspectRatio
+        }
+        return offsetX
+    }
+
+    fun coerceOffsetY(offsetY: Float): Float {
+        if(properties.aspectRatio == 0f) {
+            return offsetY
+        }
+        val offsetX = offsetY / properties.aspectRatio
+        if(offsetY > 0f && offsetX > properties.width - width){
+            return (properties.width - width) * properties.aspectRatio
+        }
+        if(offsetX < 0f && -offsetY > width - properties.minWidth){
+            return -(width - properties.minWidth) * properties.aspectRatio
+        }
+        return offsetY
+    }
+
     fun moveStart(offsetX: Float) {
+        val coercedOffsetX = coerceOffsetX(offsetX)
         if (offsetX < 0) {
-            moveStartNegative(offsetX)
+            moveStartNegative(coercedOffsetX)
         } else {
-            moveStartPositive(offsetX)
+            moveStartPositive(coercedOffsetX)
         }
     }
 
     private fun moveStartNegative(offsetX: Float) {
-        if (x + offsetX > 0f) {
-            x += offsetX
-            width -= offsetX
-            expandY(-offsetX)
-        } else {
-            width += x
-            x = 0f
+        var finalOffsetX = offsetX
+        if (x + offsetX < 0f) {
+            finalOffsetX = 0 - x
         }
+
+        x += finalOffsetX
+        width -= finalOffsetX
+        expandY(-finalOffsetX)
     }
 
     private fun moveStartPositive(offsetX: Float) {
-        if (width - offsetX >= properties.minWidth) {
-            x += offsetX
-            width -= offsetX
-        } else {
-            x += width - properties.minWidth
-            width = properties.minWidth
+        var finalOffsetX = offsetX
+        if (width - offsetX <= properties.minWidth) {
+            finalOffsetX = width - properties.minWidth
         }
+
+        x += finalOffsetX
+        width -= finalOffsetX
+        expandY(-finalOffsetX)
     }
 
     fun moveEnd(offsetX: Float) {
