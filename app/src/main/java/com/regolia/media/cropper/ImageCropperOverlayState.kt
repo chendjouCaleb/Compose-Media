@@ -59,42 +59,6 @@ class ImageCropperOverlayState(
     }
 
 
-    fun expandStart(offsetX: Float) {
-        snapshot.expandStart(offsetX)
-        update()
-    }
-
-
-    fun expandTop(offsetY: Float) {
-        snapshot.expandTop(offsetY)
-        update()
-    }
-
-
-    fun expandEnd(offsetX: Float) {
-        snapshot.expandEnd(offsetX)
-        update()
-    }
-
-    fun expandBottom(offsetY: Float) {
-        snapshot.expandBottom(offsetY)
-        update()
-    }
-
-    fun expandTopStart(offsetX: Float) {
-        snapshot.expandTopStart(offsetX)
-        update()
-    }
-
-    fun expandTopEnd(offsetX: Float) {
-        snapshot.expandTopEnd(offsetX)
-        update()
-    }
-
-    fun expandBottomStart(offsetX: Float) {
-        snapshot.expandBottomStart(offsetX)
-        update()
-    }
 
 
     fun drag(offsetX: Float, offsetY: Float) {
