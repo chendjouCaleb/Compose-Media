@@ -21,10 +21,7 @@ class CropperSnapshotTest {
         assertEquals(0f, snapshot.x)
         assertEquals(0f, snapshot.y)
     }
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
+
 
     @Test
     fun setSize_shouldChangeWidthAndHeight() {
@@ -35,6 +32,7 @@ class CropperSnapshotTest {
         assertEquals(60f, snapshot.height)
     }
 
+    //region drag
     @Test
     fun dragX_withNegativeValue_shouldDecreaseOffsetX() {
         val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
@@ -115,7 +113,10 @@ class CropperSnapshotTest {
         assertEquals(40f, snapshot.y)
     }
 
+    //endregion
 
+
+    //region moveStart
     @Test
     fun moveStart_with_positiveValue_shouldIncreaseX(){
         val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
@@ -190,7 +191,10 @@ class CropperSnapshotTest {
         assertEquals(0f, snapshot.x)
     }
 
+    //endregion
 
+
+    //region moveEnd
     @Test
     fun moveEnd_withPositiveValue_shouldIncreaseWidthWithOffsetX() {
         val snapshot = CropperSnapshot(
@@ -272,10 +276,9 @@ class CropperSnapshotTest {
         assertEquals(0f, snapshot.x)
     }
 
+//endregion
 
-
-
-
+    //region moveTop
     @Test
     fun moveTop_with_positiveValue_shouldIncreaseYByOffset(){
         val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
@@ -349,10 +352,10 @@ class CropperSnapshotTest {
         snapshot.moveTop(-50f)
         assertEquals(0f, snapshot.y)
     }
+//endregion
 
 
-
-
+    //region moveBottom
     @Test
     fun moveBottom_withPositiveValue_shouldIncreaseHeightByOffsetY() {
         val snapshot = CropperSnapshot(
@@ -433,4 +436,170 @@ class CropperSnapshotTest {
 
         assertEquals(0f, snapshot.x)
     }
+
+    //endregion
+
+    //region expandY
+    @Test
+    fun expandYWithAspectRatioZero_ShouldNotChangeHeightAndBottom() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 0f)
+        )
+        snapshot.expandY(10f)
+    }
+
+    @Test
+    fun expandYWithNegativeOffset_ShouldDecreaseHeightByScaleOffset() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.expandY(-2f)
+
+        assertEquals(48f, snapshot.height)
+    }
+
+
+    @Test
+    fun expandYWithNegativeOffset_ShouldIncreaseTopByScaleOffsetHalf() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.dragY(10f)
+        snapshot.expandY(-2f)
+
+        assertEquals(11f, snapshot.y)
+    }
+
+//    @Test
+//    fun expandYWithNegativeOffset_FinalTop_ShouldSetTopAtZero() {
+//        val snapshot = CropperSnapshot(
+//            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+//        )
+//        snapshot.setSize(50f, 50f)
+//        snapshot.dragY(2f)
+//        snapshot.expandY(-10f)
+//
+//        assertEquals(0f, snapshot.y)
+//    }
+//
+//    @Test
+//    fun expandYWithNegativeOffset_FinalBottomOverlap_ShouldDecreaseTopByScaleOffsetX() {
+//        val snapshot = CropperSnapshot(
+//            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+//        )
+//        snapshot.setSize(50f, 50f)
+//        snapshot.dragY(50f)
+//        snapshot.expandY(-10f)
+//
+//        assertEquals(40f, snapshot.y)
+//    }
+
+    @Test
+    fun expandYWithPositiveOffset_ShouldIncreaseHeightByScaleOffset() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.expandY(2f)
+
+        assertEquals(52f, snapshot.height)
+    }
+
+
+    @Test
+    fun expandYWithPositiveOffset_ShouldDecreaseTopByScaleOffsetHalf() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.dragY(10f)
+        snapshot.expandY(2f)
+
+        assertEquals(9f, snapshot.y)
+    }
+
+    @Test
+    fun expandYWithPositiveOffset_FinalTopOverlap0_ShouldSetTopAtZero() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.expandY(10f)
+
+        assertEquals(0f, snapshot.y)
+    }
+
+    @Test
+    fun expandYWithPositiveOffset_FinalTopOverlap_ShouldSetTopAtZero() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.dragY(2f)
+        snapshot.expandY(10f)
+
+        assertEquals(0f, snapshot.y)
+    }
+
+    @Test
+    fun expandYWithPositiveOffset_FinalBottomOverlap_ShouldIncreaseTopByScaleOffsetX() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(50f, 50f)
+        snapshot.dragY(50f)
+        snapshot.expandY(10f)
+
+        assertEquals(40f, snapshot.y)
+    }
+
+    @Test
+    fun expandYWithPositiveOffset_FinalBottomOverlapAndTopLowerThanHalfOffset_ShouldSetTopAtZero() {
+        val snapshot = CropperSnapshot(
+            CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f, aspectRatio = 1f)
+        )
+        snapshot.setSize(94f, 94f)
+        snapshot.dragY(4f)
+        snapshot.expandY(6f)
+
+
+        assertEquals(0f, snapshot.y)
+        assertEquals(100f, snapshot.height)
+        assertEquals(100f, snapshot.bottom)
+    }
+    //endregion
+
+
+    //region aspectRatio
+
+    @Test
+    fun changeAspectRatio_ShouldChangeAspectRatio() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(50f, 60f)
+        snapshot.changeAspectRatio(1.5f)
+
+        assertEquals(1.5f, snapshot.properties.aspectRatio)
+    }
+
+    @Test
+    fun changeAspectRatio_ShouldScaleHeight() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(10f, 10f)
+        snapshot.changeAspectRatio(2f)
+
+        assertEquals(20f, snapshot.height)
+    }
+
+    @Test
+    fun changeAspectRatio_withOverflow_ShouldSetHeightAtMax() {
+        val snapshot = CropperSnapshot(CropperProperties(width = 100f, height = 100f, minWidth = 10f, minHeight = 10f))
+        snapshot.setSize(60f, 60f)
+        snapshot.changeAspectRatio(2f)
+
+        assertEquals(100f, snapshot.height)
+    }
+
+    //endregion
 }

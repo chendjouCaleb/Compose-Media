@@ -75,10 +75,10 @@ class ImageCropperState(
             throw IllegalStateException("Cannot crop with null bitmap.")
         }
 
-        val heightRatio = overlayState.height / boxSize.currentHeight
-        val widthRatio = overlayState.width / boxSize.currentWidth
-        val yRatio = overlayState.y / boxSize.currentHeight
-        val xRatio = overlayState.x / boxSize.currentWidth
+        val heightRatio = snapshot.height / snapshot.properties.height
+        val widthRatio = snapshot.width / snapshot.properties.width
+        val yRatio = snapshot.y / snapshot.properties.height
+        val xRatio = snapshot.x / snapshot.properties.width
 
         val x = (bitmap!!.width * xRatio).toInt()
         val y = (bitmap!!.height * yRatio).toInt()

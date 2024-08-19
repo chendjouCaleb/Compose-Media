@@ -96,24 +96,6 @@ class ImageCropperOverlayState(
         update()
     }
 
-    fun expandBottomEnd(offsetX: Float) {
-        snapshot.expandBottomEnd(offsetX)
-        update()
-    }
-
-    fun moveTop(offsetY: Float) {
-       snapshot.moveTop(offsetY)
-        update()
-    }
-
-
-
-
-    fun moveBottom(offsetY: Float) {
-        snapshot.moveBottom(offsetY)
-        update()
-    }
-
 
     fun drag(offsetX: Float, offsetY: Float) {
         snapshot.drag(offsetX, offsetY)
@@ -153,36 +135,26 @@ class ImageCropperOverlayState(
     }
 
     fun touchTopStart(offsetX: Float, offsetY: Float) {
-        if (aspectRatio != 0f) {
-            //val offset = max(offsetX, offsetY)
-            expandTopStart(offsetX)
-        } else {
-            moveTop(offsetY)
-        }
+        snapshot.moveStart(offsetX)
+        snapshot.moveTop(offsetY)
+        update()
     }
 
     fun touchBottomStart(offsetX: Float, offsetY: Float) {
-        if (aspectRatio != 0f) {
-            expandBottomStart(offsetX)
-        } else {
-            moveBottom(offsetY)
-        }
+        snapshot.moveStart(offsetX)
+        snapshot.moveBottom(offsetY)
+        update()
     }
 
     fun touchTopEnd(offsetX: Float, offsetY: Float) {
-        if (aspectRatio != 0f) {
-            expandTopEnd(offsetX)
-        } else {
-            moveTop(offsetY)
-        }
+        snapshot.moveEnd(offsetX)
+        snapshot.moveTop(offsetY)
+        update()
     }
 
     fun touchBottomEnd(offsetX: Float, offsetY: Float) {
-        if (aspectRatio != 0f) {
-            expandBottomEnd(offsetX)
-        } else {
-
-            moveBottom(offsetY)
-        }
+        snapshot.moveEnd(offsetX)
+        snapshot.moveBottom(offsetY)
+        update()
     }
 }
